@@ -227,6 +227,40 @@ export class AuthService {
     });
   }
 
+  async resendEmail(userJwtPayload: JwtPayloadType): Promise<void> {
+    const user = await this.usersService.findById(userJwtPayload.id);
+
+    if (!user) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          email: 'notFound',
+        },
+      });
+    }
+
+    const hash = await this.jwtService.signAsync(
+      {
+        confirmEmailUserId: user.id,
+      },
+      {
+        secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
+          infer: true,
+        }),
+        expiresIn: this.configService.getOrThrow('auth.confirmEmailExpires', {
+          infer: true,
+        }),
+      },
+    );
+
+    await this.mailService.userSignUp({
+      to: user.email!,
+      data: {
+        hash,
+      },
+    });
+  }
+
   async confirmEmail(hash: string): Promise<void> {
     let userId: User['id'];
 

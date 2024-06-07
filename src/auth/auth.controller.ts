@@ -51,6 +51,13 @@ export class AuthController {
     return this.service.register(createUserDto);
   }
 
+  @Post('email/confirm/resend')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async resendConfirmEmail(@Request() request): Promise<void> {
+    return this.service.resendEmail(request.user);
+  }
+
   @Post('email/confirm')
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmEmail(
@@ -120,6 +127,7 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.NO_CONTENT)
   public async logout(@Request() request): Promise<void> {
+    console.log('logout');
     await this.service.logout({
       sessionId: request.user.sessionId,
     });
