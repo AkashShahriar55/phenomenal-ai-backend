@@ -219,12 +219,21 @@ export class AuthService {
       },
     );
 
-    await this.mailService.userSignUp({
-      to: dto.email,
-      data: {
-        hash,
-      },
-    });
+    try {
+      await this.mailService.userSignUp({
+        to: dto.email,
+        data: {
+          hash,
+        },
+      });
+    } catch (error) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        errors: {
+          email: 'failedToSendEmail',
+        },
+      });
+    }
   }
 
   async resendEmail(userJwtPayload: JwtPayloadType): Promise<void> {
