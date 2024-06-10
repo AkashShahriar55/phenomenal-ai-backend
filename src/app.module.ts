@@ -26,6 +26,9 @@ import { SessionModule } from './session/session.module';
 import { MailerModule } from './mailer/mailer.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
+import { ProducerModule } from './producer/producer.module';
+import { ConsumerModule } from './consumer/consumer.module';
+import sqsConfig from './sqs/config/sqs.config';
 
 const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
@@ -45,6 +48,7 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
         googleConfig,
         twitterConfig,
         appleConfig,
+        sqsConfig,
       ],
       envFilePath: ['.env'],
     }),
@@ -83,6 +87,8 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
     MailModule,
     MailerModule,
     HomeModule,
+    ProducerModule,
+    ConsumerModule,
   ],
 })
 export class AppModule {}
