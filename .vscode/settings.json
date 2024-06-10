@@ -2,9 +2,4 @@
   "markdown.extension.toc.levels": "2..6",
   "markdown.extension.orderedList.autoRenumber": false,
   "typescript.preferences.importModuleSpecifier": "relative"
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll": true
-  },
-  "eslint.autoFixOnSave": true
 }
