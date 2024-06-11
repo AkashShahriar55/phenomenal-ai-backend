@@ -28,14 +28,19 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './database/mongoose-config.service';
 import { ProducerModule } from './producer/producer.module';
 import { ConsumerModule } from './consumer/consumer.module';
+import { SqsModule } from './sqs/sqs.module';
 import sqsConfig from './sqs/config/sqs.config';
 
 const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
 });
 
+import { QueueJobsModule } from './queue-jobs/queue-jobs.module';
+import { PanelModule } from './panel/panel.module';
+
 @Module({
   imports: [
+    QueueJobsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [
@@ -89,6 +94,9 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
     HomeModule,
     ProducerModule,
     ConsumerModule,
+    SqsModule,
+    PanelModule,
   ],
+  providers: [],
 })
 export class AppModule {}

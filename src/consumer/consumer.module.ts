@@ -4,9 +4,11 @@ import { SqsModule } from '@ssut/nestjs-sqs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { ConsumerService } from './consumer/consumer.service';
+import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
 @Module({
   imports: [
     ProducerModule,
+    QueueJobsModule,
     SqsModule.registerAsync({
       imports: [ConfigModule], // Import the ConfigModule to use the ConfigService
       useFactory: async (configService: ConfigService) => {

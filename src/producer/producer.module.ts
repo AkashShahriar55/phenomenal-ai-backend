@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 
 import { ProducerService } from './producer/producer.service';
-import { DocumentQueueJobPersistenceModule } from './infrastructure/persistence/document/document-persistence.module';
 import { ConfigService } from '@nestjs/config';
-import { QueueJobService } from './queuejob.service';
 import { SQS } from 'aws-sdk';
+import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
 
-const infrastructurePersistenceModule = DocumentQueueJobPersistenceModule;
 
 @Module({
-  imports: [infrastructurePersistenceModule],
+  imports: [QueueJobsModule],
   providers: [
     {
       provide: SQS, // Provide the SQS service from the AWS SDK
@@ -36,13 +34,10 @@ const infrastructurePersistenceModule = DocumentQueueJobPersistenceModule;
       inject: [ConfigService],
     },
     ProducerService,
-    QueueJobService,
   ],
   exports: [
     SQS,
     ProducerService,
-    QueueJobService,
-    infrastructurePersistenceModule,
   ],
 })
 export class ProducerModule {}

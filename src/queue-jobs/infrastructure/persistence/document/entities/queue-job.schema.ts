@@ -1,8 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { now, HydratedDocument } from 'mongoose';
 import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
+import { ApiProperty } from '@nestjs/swagger';
+import * as AutoIncrementFactory from 'mongoose-sequence';
+import * as mongoose from 'mongoose';
 
-export type QueueJobSchemaDocument = HydratedDocument<QueueJobClass>;
+
+export type QueueJobSchemaDocument = HydratedDocument<QueueJobSchemaClass>;
 
 @Schema({
   timestamps: true,
@@ -11,7 +15,11 @@ export type QueueJobSchemaDocument = HydratedDocument<QueueJobClass>;
     getters: true,
   },
 })
-export class QueueJobClass extends EntityDocumentHelper {
+export class QueueJobSchemaClass extends EntityDocumentHelper {
+
+  @Prop({ required: true })
+  user_id: string;
+
   @Prop({ unique: true, required: true })
   message_id: string;
 
@@ -34,7 +42,17 @@ export class QueueJobClass extends EntityDocumentHelper {
   counter: number;
 
   @Prop({ type: Object, required: false })
-  error: any;
+  error?: any;
+
+  @ApiProperty()
+  @Prop({ default: now })
+  createdAt: Date;
+
+  @ApiProperty()
+  @Prop({ default: now })
+  updatedAt: Date;
 }
 
-export const QueueJobSchema = SchemaFactory.createForClass(QueueJobClass);
+
+
+export const QueueJobSchema = SchemaFactory.createForClass(QueueJobSchemaClass);

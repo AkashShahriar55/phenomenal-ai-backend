@@ -9,16 +9,16 @@ import {
   JOB_TYPES,
   MessageBody,
 } from '../../producer/producer/producer.service';
-import { QueueJobService } from '../../producer/queuejob.service';
+import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 
 @Injectable()
 export class ConsumerService {
-  constructor(private readonly queueJobService: QueueJobService) {}
+  constructor(private readonly queueJobsService: QueueJobsService) {}
 
   @SqsMessageHandler(/** name: */ 'prompt_output.fifo', /** batch: */ false)
   async handleMessage(message: Message) {
     const msgBody: MessageBody = JSON.parse(message.Body!) as MessageBody;
-    console.log('Consumer  Start ....:', msgBody.messageId);
+    // console.log('Consumer  Start ....:', message);
 
     if (!JOB_TYPES.includes(msgBody.MessageAttributes.job.value)) {
       Logger.error('Invalid job type ' + msgBody.MessageAttributes.job.value);

@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { QueueJobSchema, QueueJobClass } from './entities/queuejob.schema';
-import { QueueJobRepository } from '../queuejob.repository';
-import { QueueJobDocumentRepository } from './repositories/queuejob.repository';
+import {
+  QueueJobSchema,
+  QueueJobSchemaClass,
+} from './entities/queue-job.schema';
+import { QueueJobRepository } from '../queue-job.repository';
+import { QueueJobDocumentRepository } from './repositories/queue-job.repository';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: QueueJobClass.name, schema: QueueJobSchema },
+      { name: QueueJobSchemaClass.name, schema: QueueJobSchema },
     ]),
   ],
   providers: [
