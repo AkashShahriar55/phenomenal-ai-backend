@@ -66,3 +66,5 @@ export class QueueJobSchemaClass extends EntityDocumentHelper {
 
 
 export const QueueJobSchema = SchemaFactory.createForClass(QueueJobSchemaClass);
+
+QueueJobSchema.index({ user: 1 });

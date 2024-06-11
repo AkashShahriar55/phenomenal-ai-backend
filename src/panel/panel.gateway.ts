@@ -9,6 +9,7 @@ import { SendGenerateMessage } from '../producer/infrastructure/persistence/docu
 import { SocketWithAuth } from './types';
 import { UsersService } from '../users/users.service';
 import { use } from 'passport';
+import { QueueJobsService } from '../queue-jobs/queue-jobs.service';
 
 
 
@@ -27,7 +28,8 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
   constructor(
     private readonly panelService: PanelService,
     private readonly producerService: ProducerService,
-    private readonly usersService:UsersService
+    private readonly usersService:UsersService,
+    private readonly queueJobsService:QueueJobsService
   ) {}
 
   private readonly logger = new Logger(PanelGateway.name);
@@ -50,11 +52,42 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
   }
 
 
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage("lookupGeneration")
+  async handleLookUpMessage(
+    @MessageBody() data: any,
+    @ConnectedSocket() client: SocketWithAuth,
+  ){
+    this.logger.log(`Message received from client id: ${client.id}`);
+    this.logger.debug(`Payload: ${JSON.stringify(client.user)}`);
+    const user = await this.usersService.findById(client.user.id)
+    if(user){
+      const queuedJob = await this.queueJobsService.findJobByUser({userId:user.id.toString()})
+      console.log(queuedJob);
+      if(queuedJob && queuedJob.status === 0){
+        return{
+          event: "generate",
+          data: "Generating",
+        }
+      }else{
+        return{
+          event: "generate",
+          data: "NotGenerating",
+        }
+      }
+    }else{
+      return {
+        event: "generate",
+        data: "User not found",
+      };
+    }
+  }
+
 
  
   @UseGuards(WsJwtGuard)
   @SubscribeMessage("generate")
-  async handleMessage(
+  async handleGenerateMessage(
     @MessageBody() data: SendGenerateMessage,
     @ConnectedSocket() client: SocketWithAuth,
   ) {
@@ -85,6 +118,8 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
         data: "User not found",
       };
     }
+
+
     
    
   }

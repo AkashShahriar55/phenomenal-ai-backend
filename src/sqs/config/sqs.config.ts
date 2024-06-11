@@ -40,7 +40,7 @@ export default registerAs<SqsConfig>('sqs', () => {
     isFifo: process.env.SQS_IS_FIFO,
     input_url: process.env.SQS_INPUT_URL,
     output_url: process.env.SQS_OUTPUT_URL,
-    queue_name: process.env.SQS_INPUT_QUEUE,
+    input_queue_name: process.env.SQS_INPUT_QUEUE,
     output_queue_name: process.env.SQS_OUTPUT_QUEUE,
   };
 });

@@ -5,12 +5,14 @@ import { WsJwtGuard } from './strategies/ws-jwt.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { ProducerModule } from '../producer/producer.module';
 import { UsersModule } from '../users/users.module';
+import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
 
 @Module({
   imports:[
     JwtModule.register({}),
     ProducerModule,
-    UsersModule
+    UsersModule,
+    QueueJobsModule
   ],
   providers: [PanelService,PanelGateway]
 })

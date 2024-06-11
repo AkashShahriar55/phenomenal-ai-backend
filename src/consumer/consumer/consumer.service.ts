@@ -12,13 +12,15 @@ import {
 import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 import { ConfigService } from '@nestjs/config';
 import { FileType } from '../../files/domain/file';
+import { FilesService } from '../../files/files.service';
 
 @Injectable()
 export class ConsumerService {
   constructor(
     private readonly queueJobsService: QueueJobsService,
     private readonly configService: ConfigService,
-    private readonly sqs:SQS
+    private readonly sqs:SQS,
+    private readonly filesService:FilesService
   ) {}
 
   private readonly logger = new Logger(ConsumerService.name);
@@ -41,16 +43,21 @@ export class ConsumerService {
       // handle the message here
       const body = JSON.parse(message.Body!)
       const job = await this.queueJobsService.findJobByMessageId(body.jobID)
-      console.log(job)
-      if(job){
-        const file = new FileType()
-        file.id = job.message_id
-        job.output = file
-        const updateResponse = await this.queueJobsService.updateJob(job.id,job)
-        if(updateResponse){
-          await this.deleteMessage(message.ReceiptHandle!)
+      if(body.status === "success"){
+        if(job){
+          const response = await this.filesService.createInternalS3File(job.message_id+".mp4")
+          job.output = response.file
+          job.status = 1
+          const updateResponse = await this.queueJobsService.updateJob(job.id,job)
         }
+      }else if(body.status === "failed"){
+        if(job){
+          const deleteResponse = await this.queueJobsService.deleteJob(job?.id)
+        }
+   
       }
+      
+
 
     } catch (error) {
       console.log('consumer error', JSON.stringify(error));

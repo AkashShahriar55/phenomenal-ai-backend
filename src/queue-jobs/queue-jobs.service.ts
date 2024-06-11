@@ -4,6 +4,7 @@ import { EnqueueJobDto } from './dto/enqueue-job.dto';
 import { QueueJob } from './domain/queue-job';
 import { NullableType } from '../utils/types/nullable.type';
 import { DeepPartial } from '../utils/types/deep-partial.type';
+import { User } from '../users/domain/user';
 
 @Injectable()
 export class QueueJobsService {
@@ -27,6 +28,12 @@ export class QueueJobsService {
     message_id: QueueJob['message_id']
   ): Promise<NullableType<QueueJob>> {
     return this.queue_jobRepository.findByMessageId(message_id)
+  }
+
+  async findJobByUser(
+    conditions: { userId: User['id'] }
+  ): Promise<NullableType<QueueJob>> {
+    return this.queue_jobRepository.findByUser(conditions)
   }
 
   async updateJob(

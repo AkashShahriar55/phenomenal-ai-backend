@@ -57,7 +57,7 @@ export class ProducerService {
       })!,
     );
 
-    const jobId = uuidv4();
+    const jobID = uuidv4();
     const prompt = message.prompt;
     const duration = message.duration;
     console.log(`${message} ${message.duration} ${message.prompt}`);
@@ -66,7 +66,7 @@ export class ProducerService {
         infer: true,
       })!,
       MessageBody: JSON.stringify({
-        jobId:jobId,
+        jobID:jobID,
         prompt:prompt,
         duration:duration
       }),
@@ -76,7 +76,7 @@ export class ProducerService {
       sqsMessage = {
         ...sqsMessage,
         MessageGroupId: messageGroupId,
-        MessageDeduplicationId: jobId,
+        MessageDeduplicationId: jobID,
       };
     }
   
@@ -84,11 +84,11 @@ export class ProducerService {
 
     const input: EnqueueJobDto = {
       user:user,
-      message_id: jobId,
+      message_id: jobID,
       message: sqsMessage,
       entity: message,
       job_type: jobType,
-      queue: this.configService.get<string>('sqs.input_url', {
+      queue: this.configService.get<string>('sqs.input_queue_name', {
         infer: true,
       })!
     };

@@ -7,6 +7,7 @@ import { QueueJobRepository } from '../../queue-job.repository';
 import { QueueJob } from '../../../../domain/queue-job';
 import { QueueJobMapper } from '../mappers/queue-job.mapper';
 import { IPaginationOptions } from '../../../../../utils/types/pagination-options';
+import { User } from '../../../../../users/domain/user';
 
 @Injectable()
 export class QueueJobDocumentRepository implements QueueJobRepository {
@@ -57,10 +58,11 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
     const filter = { _id: id.toString() };
     const entity = await this.queue_jobModel.findOne(filter);
 
+   
     if (!entity) {
       throw new Error('Record not found');
     }
-
+    console.log("reached here " + entity)
     const entityObject = await this.queue_jobModel.findOneAndUpdate(
       filter,
       QueueJobMapper.toPersistence({
@@ -69,9 +71,13 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
       }),
       { new: true },
     );
-
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
   }
+
+  async findByUser({ userId }: { userId: User['id'] }): Promise<NullableType<QueueJob>>{
+    const entityObject = await this.queue_jobModel.findOne({user:userId});
+    return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
+  };
 
   async remove(id: QueueJob['id']): Promise<void> {
     await this.queue_jobModel.deleteOne({ _id: id });

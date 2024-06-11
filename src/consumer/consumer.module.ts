@@ -6,6 +6,8 @@ import { SQSClient } from '@aws-sdk/client-sqs';
 import { SqsModule as AppSqsModule } from '../sqs/sqs.module';
 import { ConsumerService } from './consumer/consumer.service';
 import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
+import { FilesService } from '../files/files.service';
+import { FilesModule } from '../files/files.module';
 @Module({
   imports: [
     QueueJobsModule,
@@ -58,7 +60,8 @@ import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
       },
       inject: [ConfigService],
     }),
-    AppSqsModule
+    AppSqsModule,
+    FilesModule
   ],
   controllers: [],
   providers: [
