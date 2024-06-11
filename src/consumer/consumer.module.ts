@@ -3,11 +3,11 @@ import { ProducerModule } from '../producer/producer.module';
 import { SqsModule } from '@ssut/nestjs-sqs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SQSClient } from '@aws-sdk/client-sqs';
+import { SqsModule as AppSqsModule } from '../sqs/sqs.module';
 import { ConsumerService } from './consumer/consumer.service';
 import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
 @Module({
   imports: [
-    ProducerModule,
     QueueJobsModule,
     SqsModule.registerAsync({
       imports: [ConfigModule], // Import the ConfigModule to use the ConfigService
@@ -58,9 +58,12 @@ import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
       },
       inject: [ConfigService],
     }),
+    AppSqsModule
   ],
   controllers: [],
-  providers: [ConsumerService],
+  providers: [
+    ConsumerService,
+  ],
   exports: [ConsumerService],
 })
 export class ConsumerModule {}

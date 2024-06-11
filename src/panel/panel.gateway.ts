@@ -7,6 +7,8 @@ import { WsJwtGuard } from './strategies/ws-jwt.guard';
 import {  ProducerService } from '../producer/producer/producer.service';
 import { SendGenerateMessage } from '../producer/infrastructure/persistence/document/dto/send-message.dto';
 import { SocketWithAuth } from './types';
+import { UsersService } from '../users/users.service';
+import { use } from 'passport';
 
 
 
@@ -25,6 +27,7 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
   constructor(
     private readonly panelService: PanelService,
     private readonly producerService: ProducerService,
+    private readonly usersService:UsersService
   ) {}
 
   private readonly logger = new Logger(PanelGateway.name);
@@ -39,7 +42,7 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
     const { sockets } = this.io.sockets;
 
     this.logger.log(`Client id: ${client.id} connected`);
-    this.logger.debug(`Number of connected clients: ${sockets}`);
+    this.logger.debug(`Number of connected clients: ${this.io.sockets}`);
   }
 
   handleDisconnect(client: any) {
@@ -51,33 +54,39 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
  
   @UseGuards(WsJwtGuard)
   @SubscribeMessage("generate")
-  handleMessage(
+  async handleMessage(
     @MessageBody() data: SendGenerateMessage,
     @ConnectedSocket() client: SocketWithAuth,
   ) {
     this.logger.log(`Message received from client id: ${client.id}`);
     this.logger.debug(`Payload: ${JSON.stringify(client.user)}`);
-    const response = this.producerService.send(
-      client.user.id.toString(),
-      data,
-      "generate"
-    ).subscribe(
-      {
-        next: (result) => {
-          console.log('Message sent successfully', result);
-        },
-        error: (error) => {
-          console.error('Error sending message', error);
-        },
-        complete: () => {
-          console.log('Observable complete');
-        },
-      }
-    )
-    return {
-      event: "generate",
-      data: "Wrong data that will make the test fail",
-    };
+    const user = await this.usersService.findById(client.user.id)
+    if(user){
+      const response = this.producerService.send(
+        user,
+        data,
+        "generate"
+      ).subscribe(
+        {
+          next: (result) => {
+            console.log('Message sent successfully', result);
+          },
+          error: (error) => {
+            console.error('Error sending message', error);
+          },
+          complete: () => {
+            console.log('Observable complete');
+          },
+        }
+      )
+    }else{
+      return {
+        event: "generate",
+        data: "User not found",
+      };
+    }
+    
+   
   }
 
 }

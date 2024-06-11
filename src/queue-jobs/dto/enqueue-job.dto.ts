@@ -1,7 +1,8 @@
 import { ApiResponseProperty } from '@nestjs/swagger';
+import { User } from '../../users/domain/user';
 
 export class EnqueueJobDto {
-  user_id:string;
+  user:User;
   message_id: string;
   message: any;
   entity: any;

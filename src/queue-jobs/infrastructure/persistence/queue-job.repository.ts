@@ -15,6 +15,8 @@ export abstract class QueueJobRepository {
   }): Promise<QueueJob[]>;
 
   abstract findById(id: QueueJob['id']): Promise<NullableType<QueueJob>>;
+  
+  abstract findByMessageId(mssage_id: QueueJob['message_id']): Promise<NullableType<QueueJob>>;
 
   abstract update(
     id: QueueJob['id'],

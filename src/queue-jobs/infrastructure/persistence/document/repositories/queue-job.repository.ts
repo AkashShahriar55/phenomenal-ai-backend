@@ -42,6 +42,11 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
   }
 
+  async findByMessageId(message_id: QueueJob['message_id']): Promise<NullableType<QueueJob>> {
+    const entityObject = await this.queue_jobModel.findOne({message_id:message_id});
+    return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
+  }
+
   async update(
     id: QueueJob['id'],
     payload: Partial<QueueJob>,

@@ -1,3 +1,4 @@
+import { UserSchemaClass } from '../../../../../users/infrastructure/persistence/document/entities/user.schema';
 import { QueueJob } from '../../../../domain/queue-job';
 import { QueueJobSchemaClass } from '../entities/queue-job.schema';
 
@@ -20,11 +21,13 @@ export class QueueJobMapper {
   }
 
   public static toPersistence(domainEntity: QueueJob): QueueJobSchemaClass {
+    const user = new UserSchemaClass();
+    user._id = domainEntity.user.id.toString();
     const persistenceSchema = new QueueJobSchemaClass();
     if (domainEntity.id) {
       persistenceSchema._id = domainEntity.id;
     }
-    persistenceSchema.user_id = domainEntity.user_id;
+    persistenceSchema.user = user;
     persistenceSchema.entity = domainEntity.entity;
     persistenceSchema.error = domainEntity.error;
     persistenceSchema.message = domainEntity.job_type;

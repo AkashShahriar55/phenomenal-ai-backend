@@ -11,6 +11,7 @@ import { UUID } from 'crypto';
 import { SendGenerateMessage } from '../infrastructure/persistence/document/dto/send-message.dto';
 import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 import { EnqueueJobDto } from '../../queue-jobs/dto/enqueue-job.dto';
+import { User } from '../../users/domain/user';
 
 export interface SQSMessage {
   QueueUrl: string;
@@ -43,24 +44,13 @@ export class ProducerService {
   constructor(
     private readonly configService: ConfigService,
     private readonly queueJobsService: QueueJobsService,
+    private readonly sqs: SQS,
   ) {}
 
-  send(userId:string , message: SendGenerateMessage, jobType: string, messageGroupId: string = 'general') {
+  send(user:User , message: SendGenerateMessage, jobType: string, messageGroupId: string = 'general') {
     if (!JOB_TYPES.includes(jobType)) {
       throw new BadRequestException('Invalid job type');
     }
-    const region = this.configService.get<string>('sqs.region', {
-      infer: true,
-    });
-    const accessKeyId = this.configService.get<string>('sqs.accessKeyId', {
-      infer: true,
-    });
-    const secretAccessKey = this.configService.get<string>(
-      'sqs.secretAccessKey',
-      {
-        infer: true,
-      },
-    );
     const isFifo: boolean = JSON.parse(
       this.configService.get('sqs.isFifo', {
         infer: true,
@@ -89,34 +79,29 @@ export class ProducerService {
         MessageDeduplicationId: jobId,
       };
     }
-    const sqs = new SQS({
-      region,
-      accessKeyId,
-      secretAccessKey,
-    });
   
 
+
     const input: EnqueueJobDto = {
-      user_id:userId,
+      user:user,
       message_id: jobId,
       message: sqsMessage,
       entity: message,
       job_type: jobType,
-      queue: this.configService.get<string>('sqs.input_queue_name', {
+      queue: this.configService.get<string>('sqs.input_url', {
         infer: true,
-      }) || "unknown"
+      })!
     };
 
 
-  
-
     return defer(() => this.queueJobsService.enqueueJob(input)).pipe(
-      switchMap(() => {
-        return from(sqs.sendMessage(sqsMessage).promise()).pipe(
+      switchMap((result) => {
+        return from(this.sqs.sendMessage(sqsMessage).promise()).pipe(
           tap(() => {
             return true;
           }),
-          catchError((error) => {
+          catchError(async (error) => {
+            await this.queueJobsService.deleteJob(result.id)
             throw new InternalServerErrorException(error);
           }),
         );

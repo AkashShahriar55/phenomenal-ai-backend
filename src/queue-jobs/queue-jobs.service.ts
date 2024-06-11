@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { QueueJobRepository } from './infrastructure/persistence/queue-job.repository';
 import { EnqueueJobDto } from './dto/enqueue-job.dto';
 import { QueueJob } from './domain/queue-job';
+import { NullableType } from '../utils/types/nullable.type';
+import { DeepPartial } from '../utils/types/deep-partial.type';
 
 @Injectable()
 export class QueueJobsService {
@@ -13,5 +15,24 @@ export class QueueJobsService {
   ): Promise<QueueJob> {
     console.log(queueDto)
     return this.queue_jobRepository.create(queueDto)
+  }
+
+  async deleteJob(
+    id: QueueJob['id']
+  ): Promise<void> {
+    return this.queue_jobRepository.remove(id)
+  }
+
+  async findJobByMessageId(
+    message_id: QueueJob['message_id']
+  ): Promise<NullableType<QueueJob>> {
+    return this.queue_jobRepository.findByMessageId(message_id)
+  }
+
+  async updateJob(
+    id:QueueJob['id'],
+    queueJob: DeepPartial<QueueJob>
+  ): Promise<NullableType<QueueJob>> {
+    return this.queue_jobRepository.update(id,queueJob)
   }
 }
