@@ -27,4 +27,8 @@ export abstract class QueueJobRepository {
   ): Promise<QueueJob | null>;
 
   abstract remove(id: QueueJob['id']): Promise<void>;
+
+  abstract findLastUnfinishedQueuedJob(
+    { userId }: { userId: User['id'] }
+  ): Promise<NullableType<QueueJob>>;
 }

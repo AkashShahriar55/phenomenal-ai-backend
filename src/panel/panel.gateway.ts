@@ -10,6 +10,7 @@ import { SocketWithAuth } from './types';
 import { UsersService } from '../users/users.service';
 import { use } from 'passport';
 import { QueueJobsService } from '../queue-jobs/queue-jobs.service';
+import { RequestGeneration } from './dto/request-generate.dto';
 
 
 
@@ -55,32 +56,9 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
   @UseGuards(WsJwtGuard)
   @SubscribeMessage("lookupGeneration")
   async handleLookUpMessage(
-    @MessageBody() data: any,
     @ConnectedSocket() client: SocketWithAuth,
   ){
-    this.logger.log(`Message received from client id: ${client.id}`);
-    this.logger.debug(`Payload: ${JSON.stringify(client.user)}`);
-    const user = await this.usersService.findById(client.user.id)
-    if(user){
-      const queuedJob = await this.queueJobsService.findJobByUser({userId:user.id.toString()})
-      console.log(queuedJob);
-      if(queuedJob && queuedJob.status === 0){
-        return{
-          event: "generate",
-          data: "Generating",
-        }
-      }else{
-        return{
-          event: "generate",
-          data: "NotGenerating",
-        }
-      }
-    }else{
-      return {
-        event: "generate",
-        data: "User not found",
-      };
-    }
+    return await this.panelService.lookForGenerationTask(client)
   }
 
 
@@ -88,40 +66,10 @@ export class PanelGateway implements OnGatewayInit,OnGatewayConnection,OnGateway
   @UseGuards(WsJwtGuard)
   @SubscribeMessage("generate")
   async handleGenerateMessage(
-    @MessageBody() data: SendGenerateMessage,
+    @MessageBody() request: RequestGeneration,
     @ConnectedSocket() client: SocketWithAuth,
   ) {
-    this.logger.log(`Message received from client id: ${client.id}`);
-    this.logger.debug(`Payload: ${JSON.stringify(client.user)}`);
-    const user = await this.usersService.findById(client.user.id)
-    if(user){
-      const response = this.producerService.send(
-        user,
-        data,
-        "generate"
-      ).subscribe(
-        {
-          next: (result) => {
-            console.log('Message sent successfully', result);
-          },
-          error: (error) => {
-            console.error('Error sending message', error);
-          },
-          complete: () => {
-            console.log('Observable complete');
-          },
-        }
-      )
-    }else{
-      return {
-        event: "generate",
-        data: "User not found",
-      };
-    }
-
-
-    
-   
+    return await this.panelService.requestGenerateTask(request,client)
   }
 
 }

@@ -52,7 +52,8 @@ export class ConsumerService {
         }
       }else if(body.status === "failed"){
         if(job){
-          const deleteResponse = await this.queueJobsService.deleteJob(job?.id)
+          job.status = 2
+          const deleteResponse = await this.queueJobsService.updateJob(job?.id,job)
         }
    
       }

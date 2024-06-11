@@ -42,4 +42,12 @@ export class QueueJobsService {
   ): Promise<NullableType<QueueJob>> {
     return this.queue_jobRepository.update(id,queueJob)
   }
+
+
+  async findLastUnfinishedQueuedJob(
+    conditions: { userId: User['id'] }
+  ): Promise<NullableType<QueueJob>> {
+    return this.queue_jobRepository.findLastUnfinishedQueuedJob(conditions)
+  }
+
 }

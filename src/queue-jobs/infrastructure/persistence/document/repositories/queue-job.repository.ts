@@ -82,4 +82,14 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
   async remove(id: QueueJob['id']): Promise<void> {
     await this.queue_jobModel.deleteOne({ _id: id });
   }
+
+
+  async findLastUnfinishedQueuedJob(
+    { userId }: { userId: User['id'] }
+  ): Promise<NullableType<QueueJob>> {
+    const entityObject = await this.queue_jobModel.findOne({ status: 0, user: userId })
+      .sort({ updatedAt: -1 })
+      .exec();
+    return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
+  }
 }

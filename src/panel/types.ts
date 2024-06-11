@@ -5,5 +5,8 @@ export type AuthPayload = {
     user:User
 }
 
+
 export type SocketWithAuth = Socket & AuthPayload;
+
+
 
