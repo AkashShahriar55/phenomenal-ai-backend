@@ -1,6 +1,4 @@
-
-
 export class RequestGeneration {
-    prompt:string;
-    duration:number
+  prompt: string;
+  duration: number;
 }

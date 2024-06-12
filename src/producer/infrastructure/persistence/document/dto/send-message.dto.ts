@@ -1,10 +1,9 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty } from 'class-validator';
 
 export class SendGenerateMessage {
-  
-    @IsNotEmpty()
-    prompt: string;
-  
-    @IsNotEmpty()
-    duration: number;
-  }
+  @IsNotEmpty()
+  prompt: string;
+
+  @IsNotEmpty()
+  duration: number;
+}

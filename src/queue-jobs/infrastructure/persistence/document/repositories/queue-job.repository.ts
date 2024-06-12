@@ -43,8 +43,12 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
   }
 
-  async findByMessageId(message_id: QueueJob['message_id']): Promise<NullableType<QueueJob>> {
-    const entityObject = await this.queue_jobModel.findOne({message_id:message_id});
+  async findByMessageId(
+    message_id: QueueJob['message_id'],
+  ): Promise<NullableType<QueueJob>> {
+    const entityObject = await this.queue_jobModel.findOne({
+      message_id: message_id,
+    });
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
   }
 
@@ -58,11 +62,10 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
     const filter = { _id: id.toString() };
     const entity = await this.queue_jobModel.findOne(filter);
 
-   
     if (!entity) {
       throw new Error('Record not found');
     }
-    console.log("reached here " + entity)
+    console.log('reached here ' + entity);
     const entityObject = await this.queue_jobModel.findOneAndUpdate(
       filter,
       QueueJobMapper.toPersistence({
@@ -74,20 +77,26 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
   }
 
-  async findByUser({ userId }: { userId: User['id'] }): Promise<NullableType<QueueJob>>{
-    const entityObject = await this.queue_jobModel.findOne({user:userId});
+  async findByUser({
+    userId,
+  }: {
+    userId: User['id'];
+  }): Promise<NullableType<QueueJob>> {
+    const entityObject = await this.queue_jobModel.findOne({ user: userId });
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;
-  };
+  }
 
   async remove(id: QueueJob['id']): Promise<void> {
     await this.queue_jobModel.deleteOne({ _id: id });
   }
 
-
-  async findLastQueuedJob(
-    { userId }: { userId: User['id'] }
-  ): Promise<NullableType<QueueJob>> {
-    const entityObject = await this.queue_jobModel.findOne({ user: userId })
+  async findLastQueuedJob({
+    userId,
+  }: {
+    userId: User['id'];
+  }): Promise<NullableType<QueueJob>> {
+    const entityObject = await this.queue_jobModel
+      .findOne({ user: userId })
       .sort({ updatedAt: -1 })
       .exec();
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;

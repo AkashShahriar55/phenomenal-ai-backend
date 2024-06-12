@@ -6,7 +6,10 @@ import { QueueJob } from '../../domain/queue-job';
 
 export abstract class QueueJobRepository {
   abstract create(
-    data: Omit<QueueJob,  'id' | 'createdAt' | 'deletedAt' | 'updatedAt' | 'status' | 'counter'>,
+    data: Omit<
+      QueueJob,
+      'id' | 'createdAt' | 'deletedAt' | 'updatedAt' | 'status' | 'counter'
+    >,
   ): Promise<QueueJob>;
 
   abstract findAllWithPagination({
@@ -17,9 +20,13 @@ export abstract class QueueJobRepository {
 
   abstract findById(id: QueueJob['id']): Promise<NullableType<QueueJob>>;
 
-  abstract findByMessageId(mssage_id: QueueJob['message_id']): Promise<NullableType<QueueJob>>;
-  
-  abstract findByUser(conditions: { userId: User['id'] }): Promise<NullableType<QueueJob>>;
+  abstract findByMessageId(
+    mssage_id: QueueJob['message_id'],
+  ): Promise<NullableType<QueueJob>>;
+
+  abstract findByUser(conditions: {
+    userId: User['id'];
+  }): Promise<NullableType<QueueJob>>;
 
   abstract update(
     id: QueueJob['id'],
@@ -28,7 +35,9 @@ export abstract class QueueJobRepository {
 
   abstract remove(id: QueueJob['id']): Promise<void>;
 
-  abstract findLastQueuedJob(
-    { userId }: { userId: User['id'] }
-  ): Promise<NullableType<QueueJob>>;
+  abstract findLastQueuedJob({
+    userId,
+  }: {
+    userId: User['id'];
+  }): Promise<NullableType<QueueJob>>;
 }

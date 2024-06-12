@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ProducerModule } from '../producer/producer.module';
 import { SqsModule } from '@ssut/nestjs-sqs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { SqsModule as AppSqsModule } from '../sqs/sqs.module';
 import { ConsumerService } from './consumer/consumer.service';
 import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
-import { FilesService } from '../files/files.service';
 import { FilesModule } from '../files/files.module';
 import { PanelModule } from '../panel/panel.module';
 @Module({
@@ -14,7 +12,7 @@ import { PanelModule } from '../panel/panel.module';
     QueueJobsModule,
     SqsModule.registerAsync({
       imports: [ConfigModule], // Import the ConfigModule to use the ConfigService
-      useFactory: async (configService: ConfigService) => {
+      useFactory: (configService: ConfigService) => {
         const accessKeyId =
           configService.get<string>('sqs.accessKeyId', {
             infer: true,
@@ -63,12 +61,10 @@ import { PanelModule } from '../panel/panel.module';
     }),
     AppSqsModule,
     FilesModule,
-    PanelModule
+    PanelModule,
   ],
   controllers: [],
-  providers: [
-    ConsumerService,
-  ],
+  providers: [ConsumerService],
   exports: [ConsumerService],
 })
 export class ConsumerModule {}

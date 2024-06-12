@@ -1,12 +1,8 @@
-import { Socket } from "socket.io";
-import { User } from "../users/domain/user";
+import { Socket } from 'socket.io';
+import { User } from '../users/domain/user';
 
 export type AuthPayload = {
-    user:User
-}
-
+  user: User;
+};
 
 export type SocketWithAuth = Socket & AuthPayload;
-
-
-

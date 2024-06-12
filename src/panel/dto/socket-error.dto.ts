@@ -1,4 +1,4 @@
 export class SocketError {
-    reason:"TokenExpired"|"NoOutput";
-    message:string;
+  reason: 'TokenExpired' | 'NoOutput';
+  message: string;
 }

@@ -1,4 +1,4 @@
-import { Injectable, SerializeOptions } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { QueueJobRepository } from './infrastructure/persistence/queue-job.repository';
 import { EnqueueJobDto } from './dto/enqueue-job.dto';
 import { QueueJob } from './domain/queue-job';
@@ -9,46 +9,38 @@ import { User } from '../users/domain/user';
 @Injectable()
 export class QueueJobsService {
   constructor(private readonly queue_jobRepository: QueueJobRepository) {}
-  
-  
-  async enqueueJob(
-    queueDto: EnqueueJobDto
-  ): Promise<QueueJob> {
-    console.log(queueDto)
-    return this.queue_jobRepository.create(queueDto)
+
+  async enqueueJob(queueDto: EnqueueJobDto): Promise<QueueJob> {
+    console.log(queueDto);
+    return this.queue_jobRepository.create(queueDto);
   }
 
-  async deleteJob(
-    id: QueueJob['id']
-  ): Promise<void> {
-    return this.queue_jobRepository.remove(id)
+  async deleteJob(id: QueueJob['id']): Promise<void> {
+    return this.queue_jobRepository.remove(id);
   }
 
   async findJobByMessageId(
-    message_id: QueueJob['message_id']
+    message_id: QueueJob['message_id'],
   ): Promise<NullableType<QueueJob>> {
-    return this.queue_jobRepository.findByMessageId(message_id)
+    return this.queue_jobRepository.findByMessageId(message_id);
   }
 
-  async findJobByUser(
-    conditions: { userId: User['id'] }
-  ): Promise<NullableType<QueueJob>> {
-    return this.queue_jobRepository.findByUser(conditions)
+  async findJobByUser(conditions: {
+    userId: User['id'];
+  }): Promise<NullableType<QueueJob>> {
+    return this.queue_jobRepository.findByUser(conditions);
   }
 
   async updateJob(
-    id:QueueJob['id'],
-    queueJob: DeepPartial<QueueJob>
+    id: QueueJob['id'],
+    queueJob: DeepPartial<QueueJob>,
   ): Promise<NullableType<QueueJob>> {
-    return this.queue_jobRepository.update(id,queueJob)
+    return this.queue_jobRepository.update(id, queueJob);
   }
 
-
- 
-  async findLastQueuedJob(
-    conditions: { userId: User['id'] }
-  ): Promise<NullableType<QueueJob>> {
-    return this.queue_jobRepository.findLastQueuedJob(conditions)
+  async findLastQueuedJob(conditions: {
+    userId: User['id'];
+  }): Promise<NullableType<QueueJob>> {
+    return this.queue_jobRepository.findLastQueuedJob(conditions);
   }
-
 }

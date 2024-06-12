@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class SqsService {
-    
-}
+export class SqsService {}

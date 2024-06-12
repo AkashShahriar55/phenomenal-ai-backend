@@ -1,28 +1,24 @@
 import { INestApplicationContext, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { Server, ServerOptions, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 // guard types
 export type AuthPayload = {
-    userID: string;
-    pollID: string;
-    name: string;
-  };
+  userID: string;
+  pollID: string;
+  name: string;
+};
 
-  export type SocketWithAuth = Socket & AuthPayload;
+export type SocketWithAuth = Socket & AuthPayload;
 
 export class SocketIOAdapter extends IoAdapter {
   private readonly logger = new Logger(SocketIOAdapter.name);
-  constructor(
-    private app: INestApplicationContext,
-    private configService: ConfigService,
-  ) {
+  constructor(private app: INestApplicationContext) {
     super(app);
   }
 
-  createIOServer(port: number, options?: ServerOptions) {
+  createIOServer(port: number) {
     // const clientPort = parseInt(this.configService.get('CLIENT_PORT')!);
 
     // const cors = {

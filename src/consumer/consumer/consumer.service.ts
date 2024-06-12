@@ -5,13 +5,8 @@ import {
 } from '@nestjs/common';
 import { SqsMessageHandler } from '@ssut/nestjs-sqs';
 import SQS, { Message } from 'aws-sdk/clients/sqs';
-import {
-  JOB_TYPES,
-  MessageBody,
-} from '../../producer/producer/producer.service';
 import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 import { ConfigService } from '@nestjs/config';
-import { FileType } from '../../files/domain/file';
 import { FilesService } from '../../files/files.service';
 import { PanelGateway } from '../../panel/panel.gateway';
 
@@ -20,18 +15,15 @@ export class ConsumerService {
   constructor(
     private readonly queueJobsService: QueueJobsService,
     private readonly configService: ConfigService,
-    private readonly sqs:SQS,
-    private readonly filesService:FilesService,
-    private readonly panelGateway:PanelGateway
+    private readonly sqs: SQS,
+    private readonly filesService: FilesService,
+    private readonly panelGateway: PanelGateway,
   ) {}
 
   private readonly logger = new Logger(ConsumerService.name);
 
   @SqsMessageHandler(/** name: */ 'prompt_output.fifo', /** batch: */ false)
-  async handleMessage(message: Message) {
-    const msgBody: MessageBody = JSON.parse(message.Body!) as MessageBody;
-    console.log('Consumer  Start ....:', message);
-
+  async handleMessage(message: Message): Promise<void> {
     // if (!JOB_TYPES.includes(msgBody.MessageAttributes.job.value)) {
 
     //   Logger.error('Invalid job type ' + msgBody.MessageAttributes.job.value);
@@ -43,29 +35,29 @@ export class ConsumerService {
     try {
       //Todo
       // handle the message here
-      const body = JSON.parse(message.Body!)
-      const job = await this.queueJobsService.findJobByMessageId(body.jobID)
-      if(body.status === "success"){
-        if(job){
-          const response = await this.filesService.createInternalS3File(job.message_id+".mp4")
-          job.output = response.file
-          job.status = 1
-          const updateResponse = await this.queueJobsService.updateJob(job.id,job)
-          if(updateResponse){
-            this.panelGateway.emitOutput(updateResponse)
+      const body = JSON.parse(message.Body!);
+      const job = await this.queueJobsService.findJobByMessageId(body.jobID);
+      if (body.status === 'success') {
+        if (job) {
+          const response = await this.filesService.createInternalS3File(
+            job.message_id + '.mp4',
+          );
+          job.output = response.file;
+          job.status = 1;
+          const updateResponse = await this.queueJobsService.updateJob(
+            job.id,
+            job,
+          );
+          if (updateResponse) {
+            await this.panelGateway.emitOutput(updateResponse);
           }
-          
         }
-      }else if(body.status === "failed"){
-        if(job){
-          job.status = 2
-          const deleteResponse = await this.queueJobsService.updateJob(job?.id,job)
+      } else if (body.status === 'failed') {
+        if (job) {
+          job.status = 2;
+          await this.queueJobsService.updateJob(job?.id, job);
         }
-   
       }
-      
-
-
     } catch (error) {
       console.log('consumer error', JSON.stringify(error));
       //keep the message in sqs
@@ -76,8 +68,10 @@ export class ConsumerService {
 
   async deleteMessage(receiptHandle: string) {
     try {
-      const queueUrl = this.configService.get<string>('sqs.output_queue_name')!;
-      
+      const queueUrl = this.configService.get<string>('sqs.output_queue_name', {
+        infer: true,
+      })!;
+
       await this.sqs.deleteMessage({
         QueueUrl: queueUrl,
         ReceiptHandle: receiptHandle,

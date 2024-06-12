@@ -53,13 +53,13 @@ export class QueueJobMapper {
     persistenceSchema.user = user;
     persistenceSchema.entity = domainEntity.entity;
     persistenceSchema.error = domainEntity.error;
-    persistenceSchema.output = output
+    persistenceSchema.output = output;
     persistenceSchema.message = domainEntity.job_type;
     persistenceSchema.message_id = domainEntity.message_id;
-    if(domainEntity.status){
+    if (domainEntity.status) {
       persistenceSchema.status = domainEntity.status;
     }
-    if(domainEntity.counter){
+    if (domainEntity.counter) {
       persistenceSchema.counter = domainEntity.counter;
     }
     persistenceSchema.queue = domainEntity.queue;

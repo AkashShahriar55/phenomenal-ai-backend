@@ -1,6 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, ApiResponseProperty } from '@nestjs/swagger';
-import { FileDto } from '../../files/dto/file.dto';
-import { IsOptional } from 'class-validator';
+import { ApiResponseProperty } from '@nestjs/swagger';
 import { FileType } from '../../files/domain/file';
 import { User } from '../../users/domain/user';
 
@@ -14,22 +12,17 @@ export class QueueJob {
   @ApiResponseProperty()
   message_id: string;
 
-
   @ApiResponseProperty()
   message: any;
-
 
   @ApiResponseProperty()
   entity: any;
 
-
   @ApiResponseProperty()
   queue: string;
 
-  
   @ApiResponseProperty()
   job_type: string;
-
 
   @ApiResponseProperty()
   status?: number;
@@ -39,10 +32,8 @@ export class QueueJob {
   })
   output?: FileType | null;
 
-
   @ApiResponseProperty()
   counter?: number;
-
 
   @ApiResponseProperty()
   error?: any;

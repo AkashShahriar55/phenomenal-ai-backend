@@ -7,7 +7,6 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { SQS } from 'aws-sdk';
 import { catchError, defer, from, switchMap, tap } from 'rxjs';
-import { UUID } from 'crypto';
 import { SendGenerateMessage } from '../infrastructure/persistence/document/dto/send-message.dto';
 import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 import { EnqueueJobDto } from '../../queue-jobs/dto/enqueue-job.dto';
@@ -32,7 +31,7 @@ export interface MessageAttributes {
 export interface MessageBody {
   messageId: string;
   prompt: string;
-  duration:number;
+  duration: number;
   date: string;
   MessageAttributes: MessageAttributes;
 }
@@ -47,7 +46,12 @@ export class ProducerService {
     private readonly sqs: SQS,
   ) {}
 
-  send(user:User , message: SendGenerateMessage, jobType: string, messageGroupId: string = 'general') {
+  send(
+    user: User,
+    message: SendGenerateMessage,
+    jobType: string,
+    messageGroupId: string = 'general',
+  ) {
     if (!JOB_TYPES.includes(jobType)) {
       throw new BadRequestException('Invalid job type');
     }
@@ -66,9 +70,9 @@ export class ProducerService {
         infer: true,
       })!,
       MessageBody: JSON.stringify({
-        jobID:jobID,
-        prompt:prompt,
-        duration:duration
+        jobID: jobID,
+        prompt: prompt,
+        duration: duration,
       }),
     };
     console.log('sqsMessage:', sqsMessage);
@@ -79,20 +83,17 @@ export class ProducerService {
         MessageDeduplicationId: jobID,
       };
     }
-  
-
 
     const input: EnqueueJobDto = {
-      user:user,
+      user: user,
       message_id: jobID,
       message: sqsMessage,
       entity: message,
       job_type: jobType,
       queue: this.configService.get<string>('sqs.input_queue_name', {
         infer: true,
-      })!
+      })!,
     };
-
 
     return defer(() => this.queueJobsService.enqueueJob(input)).pipe(
       switchMap((result) => {
@@ -101,7 +102,7 @@ export class ProducerService {
             return true;
           }),
           catchError(async (error) => {
-            await this.queueJobsService.deleteJob(result.id)
+            await this.queueJobsService.deleteJob(result.id);
             throw new InternalServerErrorException(error);
           }),
         );

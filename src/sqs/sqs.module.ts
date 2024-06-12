@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { SqsService } from './sqs.service';
 import { SqsController } from './sqs.controller';
-import { ProducerModule } from '../producer/producer.module';
 import { SQS } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [
-  ],
+  imports: [],
   providers: [
     SqsService,
     {
@@ -36,6 +34,6 @@ import { ConfigService } from '@nestjs/config';
     },
   ],
   controllers: [SqsController],
-  exports:[SqsService,SQS]
+  exports: [SqsService, SQS],
 })
 export class SqsModule {}

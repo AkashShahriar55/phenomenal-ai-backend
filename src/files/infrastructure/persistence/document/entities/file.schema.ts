@@ -29,7 +29,7 @@ export class FileSchemaClass extends EntityDocumentHelper {
   @Prop()
   @Transform(
     ({ value }) => {
-      console.log("transforming ---- > here ")
+      console.log('transforming ---- > here ');
       if ((fileConfig() as FileConfig).driver === FileDriver.LOCAL) {
         return (appConfig() as AppConfig).backendDomain + value;
       } else if (
@@ -37,8 +37,6 @@ export class FileSchemaClass extends EntityDocumentHelper {
           (fileConfig() as FileConfig).driver,
         )
       ) {
-
-   
         const s3 = new S3Client({
           region: (fileConfig() as FileConfig).awsS3Region ?? '',
           credentials: {
