@@ -12,6 +12,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor(configService: ConfigService<AllConfigType>) {
+   
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('auth.refreshSecret', { infer: true }),
@@ -21,6 +22,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   public validate(
     payload: JwtRefreshPayloadType,
   ): OrNeverType<JwtRefreshPayloadType> {
+  
     if (!payload.sessionId) {
       throw new UnauthorizedException();
     }

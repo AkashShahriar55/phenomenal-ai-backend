@@ -14,6 +14,7 @@ import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
     UsersModule,
     QueueJobsModule
   ],
-  providers: [PanelService,PanelGateway]
+  providers: [PanelService,PanelGateway],
+  exports:[PanelService,PanelGateway]
 })
 export class PanelModule {}

@@ -84,10 +84,10 @@ export class QueueJobDocumentRepository implements QueueJobRepository {
   }
 
 
-  async findLastUnfinishedQueuedJob(
+  async findLastQueuedJob(
     { userId }: { userId: User['id'] }
   ): Promise<NullableType<QueueJob>> {
-    const entityObject = await this.queue_jobModel.findOne({ status: 0, user: userId })
+    const entityObject = await this.queue_jobModel.findOne({ user: userId })
       .sort({ updatedAt: -1 })
       .exec();
     return entityObject ? QueueJobMapper.toDomain(entityObject) : null;

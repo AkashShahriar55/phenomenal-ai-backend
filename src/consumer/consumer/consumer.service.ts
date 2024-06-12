@@ -13,6 +13,7 @@ import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 import { ConfigService } from '@nestjs/config';
 import { FileType } from '../../files/domain/file';
 import { FilesService } from '../../files/files.service';
+import { PanelGateway } from '../../panel/panel.gateway';
 
 @Injectable()
 export class ConsumerService {
@@ -20,7 +21,8 @@ export class ConsumerService {
     private readonly queueJobsService: QueueJobsService,
     private readonly configService: ConfigService,
     private readonly sqs:SQS,
-    private readonly filesService:FilesService
+    private readonly filesService:FilesService,
+    private readonly panelGateway:PanelGateway
   ) {}
 
   private readonly logger = new Logger(ConsumerService.name);
@@ -49,6 +51,10 @@ export class ConsumerService {
           job.output = response.file
           job.status = 1
           const updateResponse = await this.queueJobsService.updateJob(job.id,job)
+          if(updateResponse){
+            this.panelGateway.emitOutput(updateResponse)
+          }
+          
         }
       }else if(body.status === "failed"){
         if(job){

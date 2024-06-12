@@ -3,11 +3,17 @@ import { ProducerService } from '../../producer/producer/producer.service';
 import { UsersService } from '../../users/users.service';
 import { QueueJobsService } from '../../queue-jobs/queue-jobs.service';
 import { User } from '../../users/domain/user';
-import { WsResponse } from '@nestjs/websockets';
+import { WsException, WsResponse } from '@nestjs/websockets';
 import { SocketWithAuth } from '../types';
-import { GenerationResponse, GenerationStatus } from '../domain/socket-response';
+import { GenerationResponse } from '../domain/socket-response';
 import { RequestGeneration } from '../dto/request-generate.dto';
 import { lastValueFrom } from 'rxjs';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import fileConfig from '../../files/config/file.config';
+import { FileConfig } from '../../files/config/file-config.type';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { error } from 'console';
+import { getS3SignedUrl } from '../../utils/get-s3-signed-url';
 
 @Injectable()
 export class PanelService {
@@ -23,19 +29,48 @@ export class PanelService {
 
     async lookForGenerationTask(
         client: SocketWithAuth,
-    ):Promise<WsResponse<GenerationStatus>> {
-        const queuedJob = await this.queueJobsService.findLastUnfinishedQueuedJob({ userId: client.user.id.toString() })
-        console.log(queuedJob);
-        if (queuedJob && queuedJob.status === 0) {
-            return {
-                event: "lookupGeneration",
-                data: {status:"Generating"},
+    ): Promise<WsResponse<GenerationResponse>> {
+        const queuedJob = await this.queueJobsService.findLastQueuedJob({ userId: client.user.id.toString() })
+        
+        if (queuedJob) {
+            if (queuedJob.status === 1 && queuedJob?.output?.path) {
+                const path = await getS3SignedUrl(queuedJob?.output?.path)
+                return {
+                    event: "generate",
+                    data: {
+                        jobID:queuedJob.message_id,
+                        status: "Generated",
+                        output: {
+                            outputPath:path,
+                            prompt:queuedJob.entity.prompt,
+                            duration:queuedJob.entity.duration
+                        }
+                    },
+                }
+            } else if (queuedJob.status === 0) {
+                return {
+                    event: "generate",
+                    data: {
+                        jobID:queuedJob.message_id,
+                        status: "Generating",
+                        output:{
+                            prompt:queuedJob.entity.prompt,
+                            duration:queuedJob.entity.duration
+                        }
+                    },
+                }
+            } else {
+                return {
+                    event: "generate",
+                    data: {
+                        jobID:queuedJob.message_id,
+                        status: "Failed"
+                    },
+                }
             }
+
         } else {
-            return {
-                event: "lookupGeneration",
-                data: {status:"Generated"},
-            }
+            throw new WsException("no job found")
         }
     }
 
@@ -47,31 +82,30 @@ export class PanelService {
     async requestGenerateTask(
         request: RequestGeneration,
         client: SocketWithAuth,
-    ):Promise<WsResponse<GenerationResponse>>{
+    ): Promise<WsResponse<GenerationResponse>> {
         const user = await this.usersService.findById(client.user.id)
-        if(user){
+        console.log(user)
+        if (user) {
             const res = await lastValueFrom(this.producerService.send(
                 user,
                 request,
                 "generate"
-              ))
-            if(res.$response.error){
-                return {
-                    event: "generate",
-                    data: {messageId:null},
-                }
+            ))
+            if (res.$response.error) {
+                throw new WsException(res.$response.error.message)
             }
             return {
                 event: "generate",
-                data: {messageId:res.MessageId},
+                data: { 
+                    jobID: "",
+                    status:"Generating"
+                },
             }
-        }else{
-            return {
-                event: "generate",
-                data: {messageId:null},
-            }
+        } else {
+            throw new WsException("User not found")
         }
-        
+
     }
+
 
 }

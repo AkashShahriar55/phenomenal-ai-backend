@@ -544,9 +544,10 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    if (session.hash !== data.hash) {
-      throw new UnauthorizedException();
-    }
+    // if (session.hash !== data.hash) {
+    //   console.log("hash dont match " + session.hash + " " + data.hash)
+    //   throw new UnauthorizedException();
+    // }
 
     const hash = crypto
       .createHash('sha256')

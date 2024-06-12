@@ -8,6 +8,7 @@ import { ConsumerService } from './consumer/consumer.service';
 import { QueueJobsModule } from '../queue-jobs/queue-jobs.module';
 import { FilesService } from '../files/files.service';
 import { FilesModule } from '../files/files.module';
+import { PanelModule } from '../panel/panel.module';
 @Module({
   imports: [
     QueueJobsModule,
@@ -61,7 +62,8 @@ import { FilesModule } from '../files/files.module';
       inject: [ConfigService],
     }),
     AppSqsModule,
-    FilesModule
+    FilesModule,
+    PanelModule
   ],
   controllers: [],
   providers: [

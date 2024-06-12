@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, SerializeOptions } from '@nestjs/common';
 import { QueueJobRepository } from './infrastructure/persistence/queue-job.repository';
 import { EnqueueJobDto } from './dto/enqueue-job.dto';
 import { QueueJob } from './domain/queue-job';
@@ -44,10 +44,11 @@ export class QueueJobsService {
   }
 
 
-  async findLastUnfinishedQueuedJob(
+ 
+  async findLastQueuedJob(
     conditions: { userId: User['id'] }
   ): Promise<NullableType<QueueJob>> {
-    return this.queue_jobRepository.findLastUnfinishedQueuedJob(conditions)
+    return this.queue_jobRepository.findLastQueuedJob(conditions)
   }
 
 }
